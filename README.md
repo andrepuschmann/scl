@@ -15,6 +15,6 @@ The Signaling and Communication Link is a message-based IPC
 framework emplying components, gates and gate connections.
 The whole set-up is stored in a YAML configuration file,
 which is has to be provided using environment variable
-SCL\_CONFIG.
+__SCL\_CONFIG__.
 In addition, the gen\_cache.sh script location
-has to be provided using SCL\_CACHE\_GENERATOR.
+has to be provided using __SCL\_CACHE\_GENERATOR__.
