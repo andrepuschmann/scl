@@ -16,6 +16,26 @@ FIND_PACKAGE(YAML-CPP REQUIRED)
 FIND_PACKAGE(ZeroMQ REQUIRED)
 
 ########################################################################
+# Install Dirs
+########################################################################
+SET(RUNTIME_DIR bin)
+SET(LIBRARY_DIR lib)
+SET(INCLUDE_DIR include)
+SET(DATA_DIR share/${CPACK_PACKAGE_NAME})
+SET(DOC_DIR "share/doc/${CPACK_PACKAGE_NAME}")
+
+########################################################################
+# Create uninstall targets
+########################################################################
+CONFIGURE_FILE(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+ADD_CUSTOM_TARGET(uninstall_scl
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+########################################################################
 # Add the subdirectories
 ########################################################################
 ADD_SUBDIRECTORY(thirdparty)
