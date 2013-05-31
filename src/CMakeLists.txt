@@ -17,3 +17,6 @@ INSTALL(TARGETS scl_shared
     ARCHIVE DESTINATION ${LIBRARY_DIR} # .lib file
     RUNTIME DESTINATION ${RUNTIME_DIR} # .dll file
 )
+
+INSTALL(CODE
+    "execute_process(COMMAND python setup.py install -f --prefix=${CMAKE_INSTALL_PREFIX} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})")
