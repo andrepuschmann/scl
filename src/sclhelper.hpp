@@ -56,7 +56,7 @@ public:
     };
     //! destructor
     ~sclGate() { /* Todo */ };
-    
+
     //!  Convert string to 0MQ string and send to socket
     bool sendString(const std::string &string)
     {
@@ -64,10 +64,10 @@ public:
         memcpy(message.data(), string.data(), string.size());
 
         bool rc = d_zmqSocket->send(message);
-        return (rc);        
+        return (rc);
     };
-    
-    
+
+
     //!  Convert protobuf object to 0MQ string and send to socket
     bool sendProto(const ::google::protobuf::Message &protobuf)
     {
@@ -75,7 +75,7 @@ public:
         if (!protobuf.SerializeToString(&buffer)) {
             throw SocketMapException("Failed to serialize a protobuf message");
         }
-        
+
         zmq::message_t message(buffer.size());
         memcpy(message.data(), buffer.data(), buffer.size());
 
@@ -91,19 +91,19 @@ public:
     int recvProto(::google::protobuf::Message &protobuf, bool blocking = true)
     {
         std::string buffer;
-        
-        
+
+
         this->recvString(buffer, blocking);
         if (buffer.size() == 0)
             return -1;
-            
+
         if (!protobuf.ParseFromString(buffer)) {
             throw SocketMapException("Failed to parse protobuf message");
         }
         return 0;
     };
-    
-    
+
+
     //! Receive 0MQ message and convert into std::string
     int recvString(std::string& result, bool blocking = true)
     {
@@ -126,11 +126,11 @@ public:
                 result = str;
             }
         }
-        
+
         return retval;
     };
 
-private:   
+private:
     // members for ZMQ message handling
     zmq::socket_t *d_zmqSocket;
 };
@@ -148,8 +148,17 @@ class GateFactory
         static GateFactory* instance;
         GateFactory() {}
         GateFactory(const GateFactory&) {}
-        ~GateFactory() {}
+        ~GateFactory() {
+            // delete elements in component and gate map
+            for (std::map<std::string, sclGate*>::iterator it = gateMap.begin(); it != gateMap.end(); ++it) {
+                delete it->second;
+            }
+            for (std::map<std::string, SocketMap*>::iterator it = componentMap.begin(); it != componentMap.end(); ++it) {
+                delete it->second;
+            }
+        }
         std::map<std::string, SocketMap*> componentMap;
+        std::map<std::string, sclGate*> gateMap;
     public:
         static GateFactory& getInstance()
         {
@@ -184,7 +193,18 @@ class GateFactory
                 cout << "Map found for component " << componentName << endl;
                 map = componentMap[componentName];
             }
-            return new sclGate(map, gateName);
+            // try to find existing Gate
+            if (gateMap.find(gateName) == gateMap.end()) {
+                // gate not found, create new gate and add it to the gatemap
+                //cout << "gate " << gateName << " not found, create new" << endl;
+                sclGate *gate = new sclGate(map, gateName);
+                gateMap[gateName] = gate;
+                return gate;
+            } else {
+                // return pointer to existing gate
+                //cout << "gate " << gateName << " found, return pointer" << endl;
+                return gateMap[gateName];
+            }
         }
 };
 
