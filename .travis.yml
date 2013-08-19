@@ -1,6 +1,6 @@
 before_script:
    - sudo add-apt-repository -y "deb http://archive.ubuntu.com/ubuntu/ quantal main universe"
-   - sudo apt-get -qq update
+   - sudo apt-get -q update
    - sudo apt-get install build-essential git autoconf cmake libprotobuf-dev python-protobuf protobuf-compiler protobuf-c-compiler libyaml-cpp-dev libzmq3-dev
 language: cpp
 script:
