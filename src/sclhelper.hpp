@@ -107,27 +107,25 @@ public:
     //! Receive 0MQ message and convert into std::string
     int recvString(std::string& result, bool blocking = true)
     {
-        int retval = -1;
-        zmq::message_t message;
-        int flags = (blocking == false) ? ZMQ_NOBLOCK : 0;
-
-
-        if (d_zmqSocket != NULL)
-        {
-            retval = d_zmqSocket->recv(&message, flags);
-            if (retval == -1) {
+        if (d_zmqSocket != NULL) {
+            zmq::message_t message;
+            int flags = (blocking == false) ? ZMQ_NOBLOCK : 0;
+            try {
+                if (d_zmqSocket->recv(&message, flags) == true) {
+                    // msg received correctly
+                    if (message.size() > 0) {
+                        std::string str(static_cast<char*>(message.data()), message.size());
+                        result = str;
+                        return 0;
+                    }
+                }
+            } catch (const zmq::error_t& e) {
                 string error("Failed to receive zeromq message: ");
-                error.append(zmq_strerror(errno));
-                throw SocketMapException(error);
-            }
-
-            if (message.size() > 0) {
-                std::string str(static_cast<char*>(message.data()), message.size());
-                result = str;
+                error.append(e.what());
+                std::cout << error << std::endl;
             }
         }
-
-        return retval;
+        return -1;
     };
 
 private:
